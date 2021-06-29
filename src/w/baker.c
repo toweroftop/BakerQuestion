@@ -51,7 +51,7 @@ int main(int argn, char *argc[])
 	int backv, i, bakerRet = -1;
 	key_t key;
 	key = ftok(argc[1], 100);
-	msgid = msgget(key, IPC_CREAT | 600);
+	msgid = msgget(key, IPC_CREAT | 0600);
 	struct buynode *head = NULL;
 	msg = malloc(sizeof(struct msgstr));
 
@@ -116,7 +116,7 @@ int main(int argn, char *argc[])
 
 	for (i = 0; i < n; i++)
 	{
-		backv = pthread_join(p1[i], (void *)bakerRet);
+		backv = pthread_join(p1[i], (void *)(&bakerRet));
 		pthread_mutex_destroy(&pMutex[i]);
 		pthread_cond_destroy(&pCond[i]);
 		if (backv != 0)
@@ -144,8 +144,12 @@ void *baker(void *data)
 	while (1)
 	{
 		pthread_mutex_lock(&pMutex[0]);
-		pthread_cond_wait(&pCond[0], &pMutex[0]);
 		num = rmnode(Shead, Sstep);
+		if (breadn <= 0 && caken <= 0)
+		{
+			printf("Sell Out\n");
+			break;
+		}
 		if (num == CAKE)
 		{
 			if (caken > 0)
@@ -172,6 +176,7 @@ void *baker(void *data)
 		}
 		else
 		{
+			pthread_cond_wait(&pCond[0], &pMutex[0]);
 			printf("Nothing\n");
 		}
 		pthread_mutex_unlock(&pMutex[0]);
@@ -186,13 +191,11 @@ void *baker(void *data)
 void *consumer(void *data)
 {
 	int num = 0;
+	printf("Receiving Orders...\n");
 	while (1)
 	{
-		printf("Receiving Orders...\n");
 		memset(msg, '\0', sizeof(struct msgstr));
-		printf("setf\n");
 		msgrcv(msgid, msg, MSGSIZE, 1, 0);
-		printf("rcvf\n");
 		if(msg == NULL) continue;
 		if (strlen(msg->p) > 0)
 		{
@@ -213,8 +216,8 @@ void *consumer(void *data)
 			else
 				printf("unknown kind\n");
 		}
-		else
-			printf("bad order\n");
+		//else
+		//	printf("bad order\n");
 	}
 }
 
