@@ -2,7 +2,7 @@
 ===============面包师问题================
 =========================================
 
-Author: 唐天翼(Tang Tianyi)
+Author: toweroftop
 Time: 2021-06-27
 Platform: Linux(Ubuntu 18.04)
 Language: C

@@ -11,10 +11,7 @@ consumer.c
 #include<sys/types.h>
 #include<pthread.h>
 #include<string.h>
-#include<sys/msg.h>
-#include<sys/ipc.h>
 
-#define MSGSIZE 10
 #define CAKE 0
 #define BREAD 1
 
@@ -22,22 +19,24 @@ consumer.c
 //SIGUSR2 BREAD
 //SIGALRM Close Shop
 
-struct msgstr {
-    long MType;
-    char p[MSGSIZE];
-};
-
-struct msgstr *msg;
-
 int main(int argn, char *argc[])
 {
 	int i, inn = -1, pr;
+	char *inc = (char *)malloc(sizeof(char *));
+	double t = 0.1;
 	printf("Input PID\n");
 	scanf("%d", &pr);
+	printf("Input sleeep time(double) (if is 0 will be 1)\n");
+	scanf("%lf", &t);
+	if (t <= 0) t = 1;
 	printf("Input number 0 is cake   1 is bread   2 is close\n");
+	i = 0;
+	printf("Input a array\n");
+	scanf("%s", inc);
     while(1)
     {
-		scanf("%d", &inn);
+		if (inc[i] == '\0') break;
+		inn = inc[i] - 48;
 		if (inn == 0)
 		{
 			kill(pr, SIGUSR1);
@@ -55,6 +54,8 @@ int main(int argn, char *argc[])
 		{
 			printf("Unknown Signal\n");
 		}
+		sleep(t);
+		i++;
     }
 	return 0;
 }
